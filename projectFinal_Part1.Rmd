@@ -1,0 +1,96 @@
+---
+title: 'Statistical Inference Course Project - Part 1: Simulation Exercise'
+author: "Ana Cortazzo"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+## Overview
+
+The distribution of a sample of 40 exponentials, simulated with R, is analysed and the result is then compared with the Central Limit Theorem. 
+
+## Simulations
+
+The exponential distribution can be simulated in R with ``rexp(n, lambda)`` where lambda ($\lambda$) is the rate parameter. The mean of exponential distribution is $1/ \lambda$ and the standard deviation is also $1/ \lambda$.
+
+This project will investigate the distribution of the averages of 40 exponentials. For this purpose 1000 simulations were performed, setting the value of $\lambda=0.2$ for all of them. To ensure that this simulation is reproducible, the variables are defined correctly and we set the seed with ``set.seed()``
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+lambda <- 0.2
+n <- 40
+set.seed(100)
+
+data = NULL
+for (i in 1 : 1000) data = c(data, mean(rexp(n,lambda)))
+```
+
+
+## Sample Mean versus Theoretical Mean
+
+First we need to calculate the sample and theoretical mean.
+
+```{r echo=TRUE}
+sim_mean <- mean(data)
+sim_mean
+
+theo_mean <- 1/lambda
+theo_mean
+```
+
+
+To visualize the simulation data a histogram is plotted. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hist(data, xlab = "mean" ,prob=T, main = "Exponential Function Simulations")
+abline(v = sim_mean, col = "red")
+abline(v = theo_mean, col = "green")
+
+```
+
+In this simulation, the simulated mean is `r round(sim_mean, 5)` (a red line in the histogram) and the theoretical mean `r round(theo_mean, 5)` (determined as $1/\lambda$) and is shown with the green line in the histogram. 
+
+The central limit theorem states that given a sufficiently large random sample of the population, the distribution of the sample means will follow a normal distribution. in this simulation the distribution of the 40 exponential means obtained is similar to the theoretical mean, and the distribution of the means tends to a normal distribution, as can be seen in the histogram.
+
+## Sample Variance versus Theoretical Variance
+
+First, the standard deviation and variance of the sample (simulated data) and the corresponding theoretical values are calculated.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+sd_sim <- sd(data)
+var_sim <- var(data)
+
+sd_theo <- (1/lambda)/sqrt(n)
+var_theo <- ((1/lambda)^2)/n 
+```
+
+
+The theoretical standard deviation is `r round(sd_theo, 3)` while the value for the simulated data is `r round(sd_sim, 4)`, it can be seen that these values are very close to each other. Also the values obtained for the variance are very close, being `r round(var_sim, 3)` for the sample (simulated value) and `r round(var_theo, 4)` for the theoretical distribution.
+
+## Distribution
+
+First, a normal distribution is generated with the theoretical parameters of standard deviation and variance found in the previous part.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+x_vec <- seq(min(data), max(data), length=1000)
+normal <- dnorm(x_vec, mean = theo_mean, sd = sd_theo)
+```
+
+To compare the simulated normal distribution with the distribution of the 40 exponential means we plot both distributions
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+hist(data, xlab = "mean", breaks=n ,prob=T, main = "Comparison of distributions")
+lines(x_vec, normal, pch=22, col="red", lty=5)
+
+```
+
+One way to compare these two simulations is with a Q-Q plot of the normal distribution and the simulated data.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+qqnorm(data, col = 8)
+qqline(data, col = 2)
+```
+
+It can be observed that both distributions are very similar between the quantiles 0 to 2, while the simulated sample has a small tail between quantiles 2 to 3. In any case, it can be concluded that the distribution of the simulated data is close to a normal distribution.
